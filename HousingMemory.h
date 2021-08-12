@@ -17,18 +17,19 @@ namespace NativeHousemate
 
 		HousingModule* HousingModule;
 		LayoutWorld* LayoutWorld;
-		
+
 		static HousingMemory^ _instance;
 
 	public:
 		property static HousingMemory^ Instance
 		{
-			public:
+		public:
 			HousingMemory^ get()
 			{
 				return _instance;
 			}
-			private:
+
+		private:
 			void set(HousingMemory^ value)
 			{
 				_instance = value;

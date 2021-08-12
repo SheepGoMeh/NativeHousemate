@@ -13,7 +13,7 @@ namespace NativeHousemate
 		DalamudPluginInterface^ _pi;
 		HousemateUI^ _ui;
 		Configuration^ _configuration;
-		
+
 	public:
 		virtual void Initialize(DalamudPluginInterface^ pluginInterface);
 		property String^ Name { virtual String^ get() { return "Housemate"; } }

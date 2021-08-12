@@ -47,7 +47,9 @@ NativeHousemate::InteriorFloor NativeHousemate::HousingMemory::CurrentFloor()
 
 uint32_t NativeHousemate::HousingMemory::GetTerritoryTypeId()
 {
-	return LayoutWorld == nullptr || LayoutWorld->ActiveLayout == nullptr ? 0 : LayoutWorld->ActiveLayout->TerritoryTypeId;
+	return LayoutWorld == nullptr || LayoutWorld->ActiveLayout == nullptr
+				? 0
+				: LayoutWorld->ActiveLayout->TerritoryTypeId;
 }
 
 float NativeHousemate::HousingMemory::GetInteriorLightLevel()
@@ -194,7 +196,7 @@ bool NativeHousemate::HousingMemory::TryGetSortedHousingGameObjectList(List<Hous
 
 		tmpObjects.push_back(
 			std::make_pair(ptr,
-				Utils::DistanceFromPlayer(*static_cast<HousingGameObject*>(ptr), playerPos)));
+							Utils::DistanceFromPlayer(*static_cast<HousingGameObject*>(ptr), playerPos)));
 	}
 
 	std::sort(std::begin(tmpObjects), std::end(tmpObjects), sortByDistance);
@@ -217,7 +219,7 @@ public:
 
 		HousingFurniture^ furniture;
 		HousingYardObject^ yardObject;
-	
+
 		if (NativeHousemate::HousingData::Instance->TryGetFurniture(a.housingRowId, furniture))
 		{
 			name1 = furniture->Item->Value->Name->ToString();
@@ -297,8 +299,10 @@ bool NativeHousemate::HousingMemory::TryGetUnsortedHousingGameObjectList(List<Ho
 NativeHousemate::HousingController* NativeHousemate::HousingMemory::GetHousingController()
 {
 	return LayoutWorld == nullptr ||
-		LayoutWorld->ActiveLayout == nullptr ||
-			LayoutWorld->ActiveLayout->HousingController == nullptr ? nullptr : LayoutWorld->ActiveLayout->HousingController;
+			LayoutWorld->ActiveLayout == nullptr ||
+			LayoutWorld->ActiveLayout->HousingController == nullptr
+				? nullptr
+				: LayoutWorld->ActiveLayout->HousingController;
 }
 
 bool NativeHousemate::HousingMemory::IsOutdoors()

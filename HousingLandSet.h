@@ -37,9 +37,9 @@ namespace NativeHousemate
 
 		property uint32_t UnknownRange2
 		{
-			public:
+		public:
 			uint32_t get() { return _unknownRange2; };
-			private:
+		private:
 			void set(uint32_t value) { _unknownRange2 = value; };
 		};
 

@@ -22,7 +22,7 @@ namespace NativeHousemate
 
 		static HousingData^ Data = HousingData::Instance;
 		static HousingMemory^ Mem = HousingMemory::Instance;
-		
+
 		ImGuiListClipper* _clipper;
 		initonly Configuration^ _configuration;
 		initonly DalamudPluginInterface^ _pi;
@@ -38,13 +38,13 @@ namespace NativeHousemate
 		void RenderHousingObjectList(bool collapsible);
 		void IndoorTab();
 		void SettingsTab();
-		
+
 	public:
 		HousemateUI(Configuration^ configuration, DalamudPluginInterface^ pi);
 		~HousemateUI();
 
 		void Draw();
-		
+
 
 		bool Visible;
 	};

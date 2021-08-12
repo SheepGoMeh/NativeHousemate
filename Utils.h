@@ -21,7 +21,7 @@ namespace NativeHousemate
 		{
 			ImGui::BeginTooltip();
 			auto size = Vector2(ImGui::GetFontSize() * 4 + ImGui::GetStyle().FramePadding.Y * 2,
-				ImGui::GetFontSize() * 4 + ImGui::GetStyle().FramePadding.Y * 2);
+								ImGui::GetFontSize() * 4 + ImGui::GetStyle().FramePadding.Y * 2);
 			auto cr = static_cast<int>(color.X * 255);
 			auto cg = static_cast<int>(color.Y * 255);
 			auto cb = static_cast<int>(color.Z * 255);
@@ -36,7 +36,7 @@ namespace NativeHousemate
 				text, cr, cb, cg, ca, color.X, color.Y, color.Z, color.W));
 			ImGui::EndTooltip();
 		}
-		
+
 		static Vector4 StainToVector4(uint32_t stainColor)
 		{
 			const auto s = 1.0f / 255.0f;

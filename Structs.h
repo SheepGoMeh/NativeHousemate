@@ -47,43 +47,43 @@ namespace NativeHousemate
 	};
 
 	public ref struct CommonLandSet
-    {
-        uint32_t LandRange;
-        uint32_t PlacardId;
+	{
+		uint32_t LandRange;
+		uint32_t PlacardId;
 
-        uint32_t UnknownRange1;
+		uint32_t UnknownRange1;
 
-        uint32_t InitialPrice;
-        uint8_t Size;
-        int32_t PlotIndex;
+		uint32_t InitialPrice;
+		uint8_t Size;
+		int32_t PlotIndex;
 
-        static CommonLandSet^ FromExd(HousingLandSet::LandSet lset, int index)
-        {
+		static CommonLandSet^ FromExd(HousingLandSet::LandSet lset, int index)
+		{
 			const auto ret = gcnew CommonLandSet();
-            ret->LandRange = lset.LandRange;
-            ret->PlacardId = lset.PlacardId;
-            ret->UnknownRange1 = lset.UnknownRange1;
-            ret->InitialPrice = lset.InitialPrice;
-            ret->Size = lset.Size;
-            ret->PlotIndex = index;
-            return ret;
-        }
+			ret->LandRange = lset.LandRange;
+			ret->PlacardId = lset.PlacardId;
+			ret->UnknownRange1 = lset.UnknownRange1;
+			ret->InitialPrice = lset.InitialPrice;
+			ret->Size = lset.Size;
+			ret->PlotIndex = index;
+			return ret;
+		}
 
-        String^ SizeString()
-        {
+		String^ SizeString()
+		{
 			switch (this->Size)
 			{
-				case 0:
-					return gcnew String("small");
-				case 1:
-					return gcnew String("medium");
-				case 2:
-					return gcnew String("large");
-				default:
-					return gcnew String("unknown");
+			case 0:
+				return gcnew String("small");
+			case 1:
+				return gcnew String("medium");
+			case 2:
+				return gcnew String("large");
+			default:
+				return gcnew String("unknown");
 			}
-        }
-    };
+		}
+	};
 
 	public ref struct CommonFixture
 	{
@@ -93,7 +93,8 @@ namespace NativeHousemate
 		Stain^ Stain;
 		Item^ Item;
 
-		CommonFixture(bool isExterior, int fixtureType, int fixtureKey, GeneratedSheets::Stain^ stain, GeneratedSheets::Item^ item)
+		CommonFixture(bool isExterior, int fixtureType, int fixtureKey, GeneratedSheets::Stain^ stain,
+					GeneratedSheets::Item^ item)
 		{
 			this->IsExterior = isExterior;
 			this->FixtureType = fixtureType;
@@ -103,30 +104,34 @@ namespace NativeHousemate
 		}
 	};
 
-	template<typename T, int size>
+	template <typename T, int size>
 	[System::Runtime::CompilerServices::UnsafeValueType]
 	[System::Runtime::InteropServices::StructLayout
 		(
-		System::Runtime::InteropServices::LayoutKind::Explicit,
-		Size=(sizeof(T)*size)
+			System::Runtime::InteropServices::LayoutKind::Explicit,
+			Size=(sizeof(T)*size)
 		)
 	]
-	public value struct inline_array {
+	public value struct inline_array
+	{
 	private:
 		[System::Runtime::InteropServices::FieldOffset(0)]
 		T dummy_item;
 
 	public:
-		T% operator[](int index) {
-			return *((&dummy_item)+index);
+		T% operator[](int index)
+		{
+			return *((&dummy_item) + index);
 		}
 
-		static operator interior_ptr<T>(inline_array<T,size>% ia) {
+		static operator interior_ptr<T>(inline_array<T, size>% ia)
+		{
 			return &ia.dummy_item;
 		}
 	};
 
-	ref class R {
+	ref class R
+	{
 		inline_array<int, 10> arr;
 	};
 
@@ -199,14 +204,14 @@ namespace NativeHousemate
 
 			switch (gameFloor)
 			{
-				case 0:
-					return InteriorFloor::Ground;
-				case 1:
-					return InteriorFloor::Upstairs;
-				case 10:
-					return InteriorFloor::Basement;
-				default:
-					return InteriorFloor::None;
+			case 0:
+				return InteriorFloor::Ground;
+			case 1:
+				return InteriorFloor::Upstairs;
+			case 10:
+				return InteriorFloor::Basement;
+			default:
+				return InteriorFloor::None;
 			}
 		}
 	};

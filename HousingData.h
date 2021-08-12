@@ -29,12 +29,13 @@ namespace NativeHousemate
 	public:
 		property static HousingData^ Instance
 		{
-			public:
+		public:
 			HousingData^ get()
 			{
 				return _instance;
 			}
-			private:
+
+		private:
 			void set(HousingData^ value)
 			{
 				_instance = value;

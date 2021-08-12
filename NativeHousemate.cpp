@@ -22,7 +22,7 @@ void NativeHousemate::NativeHousemate::Initialize(DalamudPluginInterface^ plugin
 
 	HousingData::Init(_pi);
 	HousingMemory::Init(_pi);
-	
+
 	_pi->UiBuilder->OnBuildUi += gcnew ImGuiScene::RawDX11Scene::BuildUIDelegate(this, &NativeHousemate::DrawUI);
 	_pi->UiBuilder->OnOpenConfigUi += gcnew EventHandler(this, &NativeHousemate::DrawConfigUI);
 }
@@ -30,7 +30,7 @@ void NativeHousemate::NativeHousemate::Initialize(DalamudPluginInterface^ plugin
 NativeHousemate::NativeHousemate::~NativeHousemate()
 {
 	delete _ui;
-	
+
 	_pi->CommandManager->RemoveHandler(this->CommandName);
 	delete _pi;
 }

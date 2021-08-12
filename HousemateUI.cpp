@@ -27,8 +27,9 @@ void NativeHousemate::HousemateUI::PlacardRender(float renderDistance)
 		}
 
 		CommonLandSet^ landSet;
-		auto placardId = *reinterpret_cast<uint32_t*>(static_cast<intptr_t*>(actor->Address.ToPointer()) + placardIdOffset);
-		
+		auto placardId = *reinterpret_cast<uint32_t*>(static_cast<intptr_t*>(actor->Address.ToPointer()) +
+			placardIdOffset);
+
 		if (landSets->TryGetValue(placardId, landSet) ||
 			Vector3::Distance(_pi->ClientState->LocalPlayer->Position, actor->Position) > renderDistance)
 		{
@@ -140,7 +141,8 @@ void NativeHousemate::HousemateUI::DrawPlotPlate(GameObject^ placard, uint32_t p
 	SharpDX::Vector2 screenCoords;
 	auto customize = Mem->GetHousingController()->Houses[land->PlotIndex];
 
-	if (_pi->Framework->Gui->WorldToScreen(SharpDX::Vector3(placard->Position.X, placard->Position.Z + 4, placard->Position.Z), screenCoords))
+	if (_pi->Framework->Gui->WorldToScreen(
+		SharpDX::Vector3(placard->Position.X, placard->Position.Z + 4, placard->Position.Z), screenCoords))
 	{
 		ImGui::PushID(String("Placard").Concat(placardId));
 		ImGui::SetNextWindowPos(Vector2(screenCoords.X, screenCoords.Y));
@@ -158,9 +160,9 @@ void NativeHousemate::HousemateUI::DrawPlotPlate(GameObject^ placard, uint32_t p
 
 		Item^ item;
 		Stain^ color;
-		
+
 		auto roof = customize.Parts[static_cast<uint32_t>(ExteriorPartsType::Roof)];
-		
+
 		if (roof.FixtureKey != 0 && Data->IsUnitedExteriorPart(roof.FixtureKey, item))
 		{
 			ImGui::Text(String("Exterior: ").Concat(item->Name));
@@ -175,7 +177,6 @@ void NativeHousemate::HousemateUI::DrawPlotPlate(GameObject^ placard, uint32_t p
 		{
 			for (auto i = 0; i != sizeof HouseCustomize::Parts / sizeof *HouseCustomize::Parts; ++i)
 			{
-
 				if (!Data->TryGetItem(customize.Parts[i].FixtureKey, item))
 				{
 					continue;
@@ -218,7 +219,7 @@ void NativeHousemate::HousemateUI::DrawMainWindow()
 			{
 				isSwapping = true;
 			}
-			
+
 			OutdoorTab();
 			_outLast = true;
 		}
@@ -229,7 +230,7 @@ void NativeHousemate::HousemateUI::DrawMainWindow()
 			{
 				isSwapping = true;
 			}
-			
+
 			IndoorTab();
 			_outLast = true;
 		}
@@ -276,7 +277,9 @@ void NativeHousemate::HousemateUI::OutdoorTab()
 	ImGui::SetColumnWidth(1, 300);
 	ImGui::EndChild();
 
-	const auto size = _objectsOpen ? ImGui::GetFontSize() * 15.0f : ImGui::GetWindowHeight() - 140.0f * Utils::GlobalFontScale();
+	const auto size = _objectsOpen
+						? ImGui::GetFontSize() * 15.0f
+						: ImGui::GetWindowHeight() - 140.0f * Utils::GlobalFontScale();
 
 	ImGui::BeginChild("##homes", Vector2(-1, size), false);
 
@@ -349,184 +352,184 @@ void NativeHousemate::HousemateUI::OutdoorTab()
 void NativeHousemate::HousemateUI::RenderHousingObjectList(bool collapsible)
 {
 	if (collapsible)
-    {
-        if (!ImGui::CollapsingHeader("Nearby housing objects"))
-        {
-            _objectsOpen = false;
-            return;
-        }
-    }
-    else
-    {
-        ImGui::Text("Nearby housing objects");
-    }
-    _objectsOpen = true;
+	{
+		if (!ImGui::CollapsingHeader("Nearby housing objects"))
+		{
+			_objectsOpen = false;
+			return;
+		}
+	}
+	else
+	{
+		ImGui::Text("Nearby housing objects");
+	}
+	_objectsOpen = true;
 
-    ImGui::BeginChild("##COLUMNAPIISDUMBIHATEYOU2", Vector2(200, ImGui::GetFontSize()), false);
-    ImGui::Columns(2);
-    ImGui::Text("Distance");
-    ImGui::SetColumnWidth(0, 61);
-    ImGui::NextColumn();
-    ImGui::Text("Item");
-    ImGui::NextColumn();
-    ImGui::SetColumnWidth(1, 300);
-    ImGui::EndChild();
+	ImGui::BeginChild("##COLUMNAPIISDUMBIHATEYOU2", Vector2(200, ImGui::GetFontSize()), false);
+	ImGui::Columns(2);
+	ImGui::Text("Distance");
+	ImGui::SetColumnWidth(0, 61);
+	ImGui::NextColumn();
+	ImGui::Text("Item");
+	ImGui::NextColumn();
+	ImGui::SetColumnWidth(1, 300);
+	ImGui::EndChild();
 
-    ImGui::BeginChild("##housingObjects", Vector2(-1, -1), false);
+	ImGui::BeginChild("##housingObjects", Vector2(-1, -1), false);
 
-    ImGui::Columns(2);
-    ImGui::SetColumnWidth(0, 61);
-    ImGui::SetColumnWidth(1, 300);
+	ImGui::Columns(2);
+	ImGui::SetColumnWidth(0, 61);
+	ImGui::SetColumnWidth(1, 300);
 
 	Nullable<Vector3>^ nPos = _pi->ClientState == nullptr
-									? Nullable<Vector3>()
-									: _pi->ClientState->LocalPlayer == nullptr
-									? Nullable<Vector3>()
-									: Nullable<Vector3>(_pi->ClientState->LocalPlayer->Position);
+								? Nullable<Vector3>()
+								: _pi->ClientState->LocalPlayer == nullptr
+								? Nullable<Vector3>()
+								: Nullable<Vector3>(_pi->ClientState->LocalPlayer->Position);
 
 	if (!nPos->HasValue)
-    {
-        ImGui::EndChild();
-        return;
-    }
+	{
+		ImGui::EndChild();
+		return;
+	}
 
-    List<HousingGameObject>^ dObjects;
-    bool dObjectsLoaded;
-    if (_configuration->SortObjectLists)
-    {
-        if (_configuration->SortType == SortType::Distance)
-            dObjectsLoaded = Mem->TryGetSortedHousingGameObjectList(dObjects, nPos->Value);
-        else
-            dObjectsLoaded = Mem->TryGetNameSortedHousingGameObjectList(dObjects);
-    }
-    else
-    {
-        dObjectsLoaded = Mem->TryGetUnsortedHousingGameObjectList(dObjects);
-    }
+	List<HousingGameObject>^ dObjects;
+	bool dObjectsLoaded;
+	if (_configuration->SortObjectLists)
+	{
+		if (_configuration->SortType == SortType::Distance)
+			dObjectsLoaded = Mem->TryGetSortedHousingGameObjectList(dObjects, nPos->Value);
+		else
+			dObjectsLoaded = Mem->TryGetNameSortedHousingGameObjectList(dObjects);
+	}
+	else
+	{
+		dObjectsLoaded = Mem->TryGetUnsortedHousingGameObjectList(dObjects);
+	}
 
-    if (!dObjectsLoaded)
-    {
-        ImGui::EndChild();
-        return;
-    }
+	if (!dObjectsLoaded)
+	{
+		ImGui::EndChild();
+		return;
+	}
 
 	ImGuiNative::ImGuiListClipper_Begin(_clipper, dObjects->Count, -1.0f); // _clipper->Begin(dObjects->Count);
 
-    while (ImGuiNative::ImGuiListClipper_Step(_clipper)) // _clipper.Step()
-        for (auto i = _clipper->DisplayStart; i < _clipper->DisplayEnd; i++)
-        {
-            auto gameObject = dObjects[i];
+	while (ImGuiNative::ImGuiListClipper_Step(_clipper)) // _clipper.Step()
+		for (auto i = _clipper->DisplayStart; i < _clipper->DisplayEnd; i++)
+		{
+			auto gameObject = dObjects[i];
 
-        	HousingYardObject^ yardObject;
-        	HousingFurniture^ furnitureObject;
+			HousingYardObject^ yardObject;
+			HousingFurniture^ furnitureObject;
 
-            auto itemName = String::Empty;
-            if (Data->TryGetYardObject(gameObject.housingRowId, yardObject))
-                itemName = yardObject->Item->Value->Name->ToString();
-            if (Data->TryGetFurniture(gameObject.housingRowId, furnitureObject))
-                itemName = furnitureObject->Item->Value->Name->ToString();
+			auto itemName = String::Empty;
+			if (Data->TryGetYardObject(gameObject.housingRowId, yardObject))
+				itemName = yardObject->Item->Value->Name->ToString();
+			if (Data->TryGetFurniture(gameObject.housingRowId, furnitureObject))
+				itemName = furnitureObject->Item->Value->Name->ToString();
 
 			const auto distance = Utils::DistanceFromPlayer(gameObject, nPos->Value);
 
-            ImGui::Text(String::Format("{0:F2}", distance));
-            ImGui::NextColumn();
-            ImGui::Text(itemName);
+			ImGui::Text(String::Format("{0:F2}", distance));
+			ImGui::NextColumn();
+			ImGui::Text(itemName);
 
-        	Stain^ stain;
-        	
-            if (gameObject.color != 0 && Data->TryGetStain(gameObject.color, stain))
-            {
-                ImGui::SameLine();
-                Utils::StainButton(String::Format("##{0}{1}", distance, itemName), stain);
-            }
+			Stain^ stain;
 
-            ImGui::NextColumn();
-        }
+			if (gameObject.color != 0 && Data->TryGetStain(gameObject.color, stain))
+			{
+				ImGui::SameLine();
+				Utils::StainButton(String::Format("##{0}{1}", distance, itemName), stain);
+			}
+
+			ImGui::NextColumn();
+		}
 
 
-    ImGui::EndChild();
+	ImGui::EndChild();
 }
 
 void NativeHousemate::HousemateUI::IndoorTab()
 {
 	if (!ImGui::BeginTabItem("Indoors")) return;
 
-    if (Mem->CurrentManager == nullptr || Mem->IsOutdoors())
-    {
-        ImGui::Text("You aren't in an indoor housing zone!");
-        ImGui::EndTabItem();
-        return;
-    }
+	if (Mem->CurrentManager == nullptr || Mem->IsOutdoors())
+	{
+		ImGui::Text("You aren't in an indoor housing zone!");
+		ImGui::EndTabItem();
+		return;
+	}
 
-    if (!ImGui::CollapsingHeader("Fixtures", ImGuiTreeNodeFlags::DefaultOpen))
-    {
-        RenderHousingObjectList(false);
-        ImGui::EndTabItem();
-        return;
-    }
+	if (!ImGui::CollapsingHeader("Fixtures", ImGuiTreeNodeFlags::DefaultOpen))
+	{
+		RenderHousingObjectList(false);
+		ImGui::EndTabItem();
+		return;
+	}
 
-    // Column header outside of the child
+	// Column header outside of the child
 	const auto fixtureColumnWidth = 135.0f;
 
-    ImGui::BeginChild("##COLUMNAPIISDUMBIHATEYOU1", Vector2(200, ImGui::GetFontSize()), false);
-    ImGui::Columns(2);
-    ImGui::Text("Type");
-    ImGui::SetColumnWidth(0, fixtureColumnWidth);
-    ImGui::NextColumn();
-    ImGui::Text("Part");
-    ImGui::NextColumn();
-    ImGui::SetColumnWidth(1, 300);
-    ImGui::EndChild();
-    ImGui::Separator();
+	ImGui::BeginChild("##COLUMNAPIISDUMBIHATEYOU1", Vector2(200, ImGui::GetFontSize()), false);
+	ImGui::Columns(2);
+	ImGui::Text("Type");
+	ImGui::SetColumnWidth(0, fixtureColumnWidth);
+	ImGui::NextColumn();
+	ImGui::Text("Part");
+	ImGui::NextColumn();
+	ImGui::SetColumnWidth(1, 300);
+	ImGui::EndChild();
+	ImGui::Separator();
 
-    ImGui::BeginChild("##fixtures", Vector2(-1, ImGui::GetFontSize() * 17.0f), false);
+	ImGui::BeginChild("##fixtures", Vector2(-1, ImGui::GetFontSize() * 17.0f), false);
 
-    ImGui::Columns(2);
-    ImGui::SetColumnWidth(0, fixtureColumnWidth);
-    ImGui::SetColumnWidth(1, 300);
+	ImGui::Columns(2);
+	ImGui::SetColumnWidth(0, fixtureColumnWidth);
+	ImGui::SetColumnWidth(1, 300);
 
-    try
-    {
-        for (auto i = 0; i != sizeof IndoorAreaData::Floors / sizeof *IndoorAreaData::Floors; i++)
-        {
-            auto fixtures = Mem->GetInteriorCommonFixtures(i);
-            if (fixtures->Length == 0) continue;
+	try
+	{
+		for (auto i = 0; i != sizeof IndoorAreaData::Floors / sizeof *IndoorAreaData::Floors; i++)
+		{
+			auto fixtures = Mem->GetInteriorCommonFixtures(i);
+			if (fixtures->Length == 0) continue;
 			const auto isCurrentFloor = Mem->CurrentFloor() == static_cast<InteriorFloor>(i);
 
-            for (auto j = 0; j < sizeof IndoorFloorData::Parts / sizeof *IndoorFloorData::Parts; j++)
-            {
-                if (fixtures[j]->FixtureKey == -1 || fixtures[j]->FixtureKey == 0) continue;
+			for (auto j = 0; j < sizeof IndoorFloorData::Parts / sizeof *IndoorFloorData::Parts; j++)
+			{
+				if (fixtures[j]->FixtureKey == -1 || fixtures[j]->FixtureKey == 0) continue;
 				const auto fixtureName = Utils::GetInteriorPartDescriptor(static_cast<InteriorPartsType>(j));
 
-                auto color = isCurrentFloor ? White : Gray;
+				auto color = isCurrentFloor ? White : Gray;
 
-                ImGui::TextColored(
-                	color,
-                	String::Format("{0} {1}", Utils::GetFloorDescriptor(static_cast<InteriorFloor>(i)), fixtureName));
-                ImGui::NextColumn();
-                ImGui::TextColored(color, fixtures[j]->Item->Name);
-                ImGui::NextColumn();
-            }
+				ImGui::TextColored(
+					color,
+					String::Format("{0} {1}", Utils::GetFloorDescriptor(static_cast<InteriorFloor>(i)), fixtureName));
+				ImGui::NextColumn();
+				ImGui::TextColored(color, fixtures[j]->Item->Name);
+				ImGui::NextColumn();
+			}
 
-            ImGui::Columns(1);
-            ImGui::Separator();
-            ImGui::Columns(2);
-        }
+			ImGui::Columns(1);
+			ImGui::Separator();
+			ImGui::Columns(2);
+		}
 
-        ImGui::Columns(1);
-        ImGui::Text("Light level: {Mem.GetInteriorLightLevel()}");
-    }
-    catch (Exception^ e)
-    {
-        PluginLog::Log(e, "hey");
-    }
+		ImGui::Columns(1);
+		ImGui::Text("Light level: {Mem.GetInteriorLightLevel()}");
+	}
+	catch (Exception^ e)
+	{
+		PluginLog::Log(e, "hey");
+	}
 
-    ImGui::EndChild();
-    ImGui::Separator();
+	ImGui::EndChild();
+	ImGui::Separator();
 
-    RenderHousingObjectList(false);
+	RenderHousingObjectList(false);
 
-    ImGui::EndTabItem();
+	ImGui::EndTabItem();
 }
 
 void NativeHousemate::HousemateUI::SettingsTab()
@@ -597,7 +600,7 @@ NativeHousemate::HousemateUI::HousemateUI(Configuration^ configuration, DalamudP
 {
 	_pi = pi;
 	_configuration = configuration;
-	
+
 	_clipper = new ImGuiListClipper();
 }
 
