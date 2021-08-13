@@ -83,10 +83,10 @@ void NativeHousemate::HousemateUI::Render(float renderDistance)
 									? Nullable<Vector3>()
 									: Nullable<Vector3>(_pi->ClientState->LocalPlayer->Position);
 
-		SharpDX::Vector2 screenCoords;
+		Vector2 screenCoords;
 
 		if (!nPos->HasValue ||
-			!_pi->Framework->Gui->WorldToScreen(SharpDX::Vector3(hObject->X, hObject->Y, hObject->Z), screenCoords) ||
+			!_pi->Framework->Gui->WorldToScreen(hObject, screenCoords) ||
 			Utils::DistanceFromPlayer(*hObject, nPos->Value) > renderDistance)
 		{
 			continue;
@@ -138,11 +138,11 @@ void NativeHousemate::HousemateUI::DrawPlotPlate(GameObject^ placard, uint32_t p
 		return;
 	}
 
-	SharpDX::Vector2 screenCoords;
+	Vector2 screenCoords;
 	auto customize = Mem->GetHousingController()->Houses[land->PlotIndex];
 
 	if (_pi->Framework->Gui->WorldToScreen(
-		SharpDX::Vector3(placard->Position.X, placard->Position.Z + 4, placard->Position.Z), screenCoords))
+		Vector3(placard->Position.X, placard->Position.Z + 4, placard->Position.Z), screenCoords))
 	{
 		ImGui::PushID(String("Placard").Concat(placardId));
 		ImGui::SetNextWindowPos(Vector2(screenCoords.X, screenCoords.Y));
