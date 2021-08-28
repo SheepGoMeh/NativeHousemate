@@ -31,7 +31,7 @@ namespace NativeHousemate
 
 	private:
 		void OnCommand(String^ command, String^ args);
-		void DrawConfigUI(Object^ sender, EventArgs^ e);
+		void DrawConfigUI();
 		void DrawUI();
 	};
 }

@@ -35,8 +35,8 @@ NativeHousemate::NativeHousemate::NativeHousemate(Dalamud::Plugin::DalamudPlugin
 	HousingData::Init(dataManager);
 	HousingMemory::Init(sigScanner);
 
-	PluginInterface->UiBuilder->Draw += gcnew ImGuiScene::RawDX11Scene::BuildUIDelegate(this, &NativeHousemate::DrawUI);
-	PluginInterface->UiBuilder->OpenConfigUi += gcnew EventHandler(this, &NativeHousemate::DrawConfigUI);
+	PluginInterface->UiBuilder->Draw += gcnew System::Action(this, &NativeHousemate::DrawUI);
+	PluginInterface->UiBuilder->OpenConfigUi += gcnew System::Action(this, &NativeHousemate::DrawConfigUI);
 }
 
 NativeHousemate::NativeHousemate::~NativeHousemate()
@@ -44,8 +44,8 @@ NativeHousemate::NativeHousemate::~NativeHousemate()
 	delete _ui;
 
 	CommandManager->RemoveHandler(this->CommandName);
-	PluginInterface->UiBuilder->Draw -= gcnew ImGuiScene::RawDX11Scene::BuildUIDelegate(this, &NativeHousemate::DrawUI);
-	PluginInterface->UiBuilder->OpenConfigUi -= gcnew EventHandler(this, &NativeHousemate::DrawConfigUI);
+	PluginInterface->UiBuilder->Draw -= gcnew System::Action(this, &NativeHousemate::DrawUI);
+	PluginInterface->UiBuilder->OpenConfigUi -= gcnew System::Action(this, &NativeHousemate::DrawConfigUI);
 }
 
 void NativeHousemate::NativeHousemate::OnCommand(String^ command, String^ args)
@@ -53,7 +53,7 @@ void NativeHousemate::NativeHousemate::OnCommand(String^ command, String^ args)
 	_ui->Visible = true;
 }
 
-void NativeHousemate::NativeHousemate::DrawConfigUI(Object^ sender, EventArgs^ e)
+void NativeHousemate::NativeHousemate::DrawConfigUI()
 {
 	_ui->Visible = true;
 }
