@@ -2,37 +2,50 @@
 
 #include "NativeHousemate.h"
 
-void NativeHousemate::NativeHousemate::Initialize(DalamudPluginInterface^ pluginInterface)
+NativeHousemate::NativeHousemate::NativeHousemate(Dalamud::Plugin::DalamudPluginInterface^ pluginInterface,
+												Dalamud::Game::Gui::GameGui^ gameGui,
+												Dalamud::Game::ClientState::ClientState^ clientState,
+												Dalamud::Game::Command::CommandManager^ commandManager,
+												Dalamud::Game::Framework^ framework,
+												Dalamud::Game::ClientState::Objects::ObjectTable^ objectTable,
+												Dalamud::Game::SigScanner^ sigScanner,
+												Dalamud::Data::DataManager^ dataManager)
 {
-	_pi = pluginInterface;
+	Framework = framework;
+	GameGui = gameGui;
+	ClientState = clientState;
+	CommandManager = commandManager;
+	PluginInterface = pluginInterface;
+	ObjectTable = objectTable;
 
-	_configuration = safe_cast<Configuration^>(_pi->GetPluginConfig());
+	auto pluginConfiguration = safe_cast<Configuration^>(PluginInterface->GetPluginConfig());
 
-	if (_configuration == nullptr)
+	if (pluginConfiguration == nullptr)
 	{
-		_configuration = gcnew Configuration();
+		pluginConfiguration = gcnew Configuration();
 	}
 
-	_ui = gcnew HousemateUI(_configuration, _pi);
+	_ui = gcnew HousemateUI(pluginConfiguration);
 
-	const auto handler = gcnew CommandInfo(gcnew CommandInfo::HandlerDelegate(this, &NativeHousemate::OnCommand));
+	const auto handler = gcnew Dalamud::Game::Command::CommandInfo(gcnew Dalamud::Game::Command::CommandInfo::HandlerDelegate(this, &NativeHousemate::OnCommand));
 	handler->HelpMessage = "/housemate will open the Housemate window.";
 
-	_pi->CommandManager->AddHandler(this->CommandName, handler);
+	CommandManager->AddHandler(this->CommandName, handler);
 
-	HousingData::Init(_pi);
-	HousingMemory::Init(_pi);
+	HousingData::Init(dataManager);
+	HousingMemory::Init(sigScanner);
 
-	_pi->UiBuilder->OnBuildUi += gcnew ImGuiScene::RawDX11Scene::BuildUIDelegate(this, &NativeHousemate::DrawUI);
-	_pi->UiBuilder->OnOpenConfigUi += gcnew EventHandler(this, &NativeHousemate::DrawConfigUI);
+	PluginInterface->UiBuilder->Draw += gcnew ImGuiScene::RawDX11Scene::BuildUIDelegate(this, &NativeHousemate::DrawUI);
+	PluginInterface->UiBuilder->OpenConfigUi += gcnew EventHandler(this, &NativeHousemate::DrawConfigUI);
 }
 
 NativeHousemate::NativeHousemate::~NativeHousemate()
 {
 	delete _ui;
 
-	_pi->CommandManager->RemoveHandler(this->CommandName);
-	delete _pi;
+	CommandManager->RemoveHandler(this->CommandName);
+	PluginInterface->UiBuilder->Draw -= gcnew ImGuiScene::RawDX11Scene::BuildUIDelegate(this, &NativeHousemate::DrawUI);
+	PluginInterface->UiBuilder->OpenConfigUi -= gcnew EventHandler(this, &NativeHousemate::DrawConfigUI);
 }
 
 void NativeHousemate::NativeHousemate::OnCommand(String^ command, String^ args)

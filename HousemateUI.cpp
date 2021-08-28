@@ -1,11 +1,10 @@
 ﻿#include "pch.h"
 #include "HousemateUI.h"
 #include "Utils.h"
+#include "NativeHousemate.h"
 
 void NativeHousemate::HousemateUI::PlacardRender(float renderDistance)
 {
-	auto placardIdOffset = 120;
-
 	Dictionary<uint32_t, CommonLandSet^>^ landSets;
 
 	if (!Data->TryGetLandSetDict(Mem->GetTerritoryTypeId(), landSets))
@@ -13,7 +12,7 @@ void NativeHousemate::HousemateUI::PlacardRender(float renderDistance)
 		return;
 	}
 
-	auto actorTable = _pi->ClientState->Objects;
+	auto actorTable = NativeHousemate::ObjectTable;
 	if (actorTable == nullptr)
 	{
 		return;
@@ -21,7 +20,8 @@ void NativeHousemate::HousemateUI::PlacardRender(float renderDistance)
 
 	for each (auto actor in actorTable)
 	{
-		if (actor == nullptr || _pi->ClientState->LocalPlayer == nullptr)
+		auto placardIdOffset = 120;
+		if (actor == nullptr || NativeHousemate::ClientState->LocalPlayer == nullptr)
 		{
 			continue;
 		}
@@ -31,7 +31,7 @@ void NativeHousemate::HousemateUI::PlacardRender(float renderDistance)
 			placardIdOffset);
 
 		if (landSets->TryGetValue(placardId, landSet) ||
-			Vector3::Distance(_pi->ClientState->LocalPlayer->Position, actor->Position) > renderDistance)
+			Vector3::Distance(NativeHousemate::ClientState->LocalPlayer->Position, actor->Position) > renderDistance)
 		{
 			continue;
 		}
@@ -77,16 +77,16 @@ void NativeHousemate::HousemateUI::Render(float renderDistance)
 			}
 		}
 
-		Nullable<Vector3>^ nPos = _pi->ClientState == nullptr
+		Nullable<Vector3>^ nPos = NativeHousemate::ClientState == nullptr
 									? Nullable<Vector3>()
-									: _pi->ClientState->LocalPlayer == nullptr
+									: NativeHousemate::ClientState->LocalPlayer == nullptr
 									? Nullable<Vector3>()
-									: Nullable<Vector3>(_pi->ClientState->LocalPlayer->Position);
+									: Nullable<Vector3>(NativeHousemate::ClientState->LocalPlayer->Position);
 
 		Vector2 screenCoords;
 
 		if (!nPos->HasValue ||
-			!_pi->Framework->Gui->WorldToScreen(hObject, screenCoords) ||
+			!NativeHousemate::GameGui->WorldToScreen(Vector3(hObject->X, hObject->Y, hObject->Z), screenCoords) ||
 			Utils::DistanceFromPlayer(*hObject, nPos->Value) > renderDistance)
 		{
 			continue;
@@ -131,7 +131,7 @@ void NativeHousemate::HousemateUI::Render()
 	Render(50.0f);
 }
 
-void NativeHousemate::HousemateUI::DrawPlotPlate(GameObject^ placard, uint32_t placardId, CommonLandSet^ land)
+void NativeHousemate::HousemateUI::DrawPlotPlate(Dalamud::Game::ClientState::Objects::Types::GameObject^ placard, uint32_t placardId, CommonLandSet^ land)
 {
 	if (Mem->GetHousingController() == nullptr)
 	{
@@ -139,9 +139,9 @@ void NativeHousemate::HousemateUI::DrawPlotPlate(GameObject^ placard, uint32_t p
 	}
 
 	Vector2 screenCoords;
-	auto customize = Mem->GetHousingController()->Houses[land->PlotIndex];
+	const auto customize = Mem->GetHousingController()->Houses[land->PlotIndex];
 
-	if (_pi->Framework->Gui->WorldToScreen(
+	if (NativeHousemate::GameGui->WorldToScreen(
 		Vector3(placard->Position.X, placard->Position.Z + 4, placard->Position.Z), screenCoords))
 	{
 		ImGui::PushID(String("Placard").Concat(placardId));
@@ -161,7 +161,7 @@ void NativeHousemate::HousemateUI::DrawPlotPlate(GameObject^ placard, uint32_t p
 		Item^ item;
 		Stain^ color;
 
-		auto roof = customize.Parts[static_cast<uint32_t>(ExteriorPartsType::Roof)];
+		const auto roof = customize.Parts[static_cast<uint32_t>(ExteriorPartsType::Roof)];
 
 		if (roof.FixtureKey != 0 && Data->IsUnitedExteriorPart(roof.FixtureKey, item))
 		{
@@ -381,11 +381,11 @@ void NativeHousemate::HousemateUI::RenderHousingObjectList(bool collapsible)
 	ImGui::SetColumnWidth(0, 61);
 	ImGui::SetColumnWidth(1, 300);
 
-	Nullable<Vector3>^ nPos = _pi->ClientState == nullptr
+	Nullable<Vector3>^ nPos = NativeHousemate::ClientState == nullptr
 								? Nullable<Vector3>()
-								: _pi->ClientState->LocalPlayer == nullptr
+								: NativeHousemate::ClientState->LocalPlayer == nullptr
 								? Nullable<Vector3>()
-								: Nullable<Vector3>(_pi->ClientState->LocalPlayer->Position);
+								: Nullable<Vector3>(NativeHousemate::ClientState->LocalPlayer->Position);
 
 	if (!nPos->HasValue)
 	{
@@ -395,9 +395,9 @@ void NativeHousemate::HousemateUI::RenderHousingObjectList(bool collapsible)
 
 	List<HousingGameObject>^ dObjects;
 	bool dObjectsLoaded;
-	if (_configuration->SortObjectLists)
+	if (_config->SortObjectLists)
 	{
-		if (_configuration->SortType == SortType::Distance)
+		if (_config->SortType == SortType::Distance)
 			dObjectsLoaded = Mem->TryGetSortedHousingGameObjectList(dObjects, nPos->Value);
 		else
 			dObjectsLoaded = Mem->TryGetNameSortedHousingGameObjectList(dObjects);
@@ -469,7 +469,7 @@ void NativeHousemate::HousemateUI::IndoorTab()
 	}
 
 	// Column header outside of the child
-	const auto fixtureColumnWidth = 135.0f;
+	constexpr auto fixtureColumnWidth = 135.0f;
 
 	ImGui::BeginChild("##COLUMNAPIISDUMBIHATEYOU1", Vector2(200, ImGui::GetFontSize()), false);
 	ImGui::Columns(2);
@@ -521,7 +521,7 @@ void NativeHousemate::HousemateUI::IndoorTab()
 	}
 	catch (Exception^ e)
 	{
-		PluginLog::Log(e, "hey");
+		Dalamud::Logging::PluginLog::Log(e, "hey");
 	}
 
 	ImGui::EndChild();
@@ -539,24 +539,24 @@ void NativeHousemate::HousemateUI::SettingsTab()
 		return;
 	}
 
-	auto render = _configuration->Render;
-	auto renderDistance = _configuration->RenderDistance;
-	auto sortedObjects = _configuration->SortObjectLists;
-	auto sortType = _configuration->SortType;
+	auto render = _config->Render;
+	auto renderDistance = _config->RenderDistance;
+	auto sortedObjects = _config->SortObjectLists;
+	auto sortType = _config->SortType;
 
 	if (ImGui::Checkbox("Display housing object overlay", render))
 	{
-		_configuration->Render = render;
+		_config->Render = render;
 	}
 
 	if (render && ImGui::SliderFloat("View distance", renderDistance, 0, 100))
 	{
-		_configuration->RenderDistance = renderDistance;
+		_config->RenderDistance = renderDistance;
 	}
 
 	if (ImGui::Checkbox("Sort housing object lists", sortedObjects))
 	{
-		_configuration->SortObjectLists = sortedObjects;
+		_config->SortObjectLists = sortedObjects;
 	}
 
 	if (sortedObjects)
@@ -567,11 +567,11 @@ void NativeHousemate::HousemateUI::SettingsTab()
 		{
 			if (ImGui::Selectable(SortType::Distance.ToString()))
 			{
-				_configuration->SortType = SortType::Distance;
+				_config->SortType = SortType::Distance;
 			}
 			if (ImGui::Selectable(SortType::Name.ToString()))
 			{
-				_configuration->SortType = SortType::Name;
+				_config->SortType = SortType::Name;
 			}
 			ImGui::EndCombo();
 		}
@@ -579,7 +579,7 @@ void NativeHousemate::HousemateUI::SettingsTab()
 
 	if (ImGui::Button("Save"))
 	{
-		_configuration->Save();
+		_config->Save();
 	}
 
 	ImGui::EndTabItem();
@@ -587,21 +587,19 @@ void NativeHousemate::HousemateUI::SettingsTab()
 
 void NativeHousemate::HousemateUI::Draw()
 {
-	if (_configuration->Render)
+	if (_config->Render)
 	{
-		Render(_configuration->RenderDistance);
-		PlacardRender(_configuration->RenderDistance);
+		Render(_config->RenderDistance);
+		PlacardRender(_config->RenderDistance);
 	}
 
 	DrawMainWindow();
 }
 
-NativeHousemate::HousemateUI::HousemateUI(Configuration^ configuration, DalamudPluginInterface^ pi)
+NativeHousemate::HousemateUI::HousemateUI(Configuration^ pluginConfiguration)
 {
-	_pi = pi;
-	_configuration = configuration;
-
 	_clipper = new ImGuiListClipper();
+	_config = pluginConfiguration;
 }
 
 NativeHousemate::HousemateUI::~HousemateUI()

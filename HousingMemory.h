@@ -7,13 +7,12 @@
 using namespace System::Linq;
 using namespace System::Numerics;
 using namespace System::Collections::Generic;
-using namespace Dalamud::Plugin;
 
 namespace NativeHousemate
 {
 	public ref class HousingMemory
 	{
-		HousingMemory(DalamudPluginInterface^ pi);
+		HousingMemory(Dalamud::Game::SigScanner^ scanner);
 
 		HousingModule* HousingModule;
 		LayoutWorld* LayoutWorld;
@@ -44,7 +43,7 @@ namespace NativeHousemate
 			}
 		}
 
-		static void Init(DalamudPluginInterface^ pi);
+		static void Init(Dalamud::Game::SigScanner^ scanner);
 		InteriorFloor CurrentFloor();
 		uint32_t GetTerritoryTypeId();
 		float GetInteriorLightLevel();

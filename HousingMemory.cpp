@@ -7,35 +7,35 @@
 #include "HousingData.h"
 #include "Utils.h"
 
-NativeHousemate::HousingMemory::HousingMemory(DalamudPluginInterface^ pi)
+NativeHousemate::HousingMemory::HousingMemory(Dalamud::Game::SigScanner^ scanner)
 {
 	try
 	{
-		auto HousingModulePtr = pi->TargetModuleScanner->GetStaticAddressFromSig(
+		auto HousingModulePtr = scanner->GetStaticAddressFromSig(
 			"40 53 48 83 EC 20 33 DB 48 39 1D ?? ?? ?? ?? 75 2C 45 33 C0 33 D2 B9 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 85 C0 74 11 48 8B C8 E8 ?? ?? ?? ?? 48 89 05 ?? ?? ?? ?? EB 07",
 			0xA);
-		auto LayoutWorldPtr = pi->TargetModuleScanner->GetStaticAddressFromSig(
+		auto LayoutWorldPtr = scanner->GetStaticAddressFromSig(
 			"48 8B 05 ?? ?? ?? ?? 48 8B 48 20 48 85 C9 74 31 83 B9 ?? ?? ?? ?? ?? 74 28 80 B9 ?? ?? ?? ?? ?? 75 1F 80 B9 ?? ?? ?? ?? ?? 74 03 B0 01 C3",
 			0x2);
 
-		PluginLog::Log("Pre-HousingModule at {0:X}", HousingModulePtr.ToInt64().ToString());
-		PluginLog::Log("Pre-LayoutWorld at {0:X}", LayoutWorldPtr.ToInt64().ToString());
+		Dalamud::Logging::PluginLog::Log("Pre-HousingModule at {0:X}", HousingModulePtr.ToInt64().ToString());
+		Dalamud::Logging::PluginLog::Log("Pre-LayoutWorld at {0:X}", LayoutWorldPtr.ToInt64().ToString());
 
 		HousingModule = *static_cast<NativeHousemate::HousingModule**>(HousingModulePtr.ToPointer());
 		LayoutWorld = *static_cast<NativeHousemate::LayoutWorld**>(LayoutWorldPtr.ToPointer());
 
-		PluginLog::Log("HousingModule at {0:X}", reinterpret_cast<intptr_t>(HousingModule));
-		PluginLog::Log("LayoutWorld at {0:X}", reinterpret_cast<intptr_t>(HousingModule));
+		Dalamud::Logging::PluginLog::Log("HousingModule at {0:X}", reinterpret_cast<intptr_t>(HousingModule));
+		Dalamud::Logging::PluginLog::Log("LayoutWorld at {0:X}", reinterpret_cast<intptr_t>(HousingModule));
 	}
 	catch (Exception^ e)
 	{
-		PluginLog::Log(e, "Could not load Housemate!!");
+		Dalamud::Logging::PluginLog::Log(e, "Could not load Housemate!!");
 	}
 }
 
-void NativeHousemate::HousingMemory::Init(DalamudPluginInterface^ pi)
+void NativeHousemate::HousingMemory::Init(Dalamud::Game::SigScanner^ scanner)
 {
-	Instance = gcnew HousingMemory(pi);
+	Instance = gcnew HousingMemory(scanner);
 }
 
 NativeHousemate::InteriorFloor NativeHousemate::HousingMemory::CurrentFloor()
@@ -80,7 +80,7 @@ array<NativeHousemate::CommonFixture^>^ NativeHousemate::HousingMemory::GetInter
 		return gcnew array<CommonFixture^>(0);
 	}
 
-	auto floor = LayoutWorld->ActiveLayout->IndoorAreaData->Floors[floorId];
+	const auto floor = LayoutWorld->ActiveLayout->IndoorAreaData->Floors[floorId];
 	auto ret = gcnew array<CommonFixture^>(sizeof IndoorAreaData::Floors / sizeof *IndoorAreaData::Floors);
 
 	for (auto i = 0; i != ret->Length; ++i)
@@ -156,7 +156,7 @@ bool NativeHousemate::HousingMemory::TryGetHousingGameObject(int32_t index, Hous
 	if (HousingModule == nullptr ||
 		HousingModule->GetCurrentManager() == nullptr ||
 		HousingModule->GetCurrentManager()->objects == nullptr ||
-		HousingModule->GetCurrentManager()->objects[index] == 0)
+		HousingModule->GetCurrentManager()->objects[index] == nullptr)
 	{
 		return false;
 	}

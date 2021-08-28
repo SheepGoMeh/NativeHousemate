@@ -5,15 +5,12 @@
 #include "Structs.h"
 
 using namespace System::Runtime;
-using namespace Dalamud::Plugin;
-using namespace Dalamud::Configuration;
 
 namespace NativeHousemate
 {
 	[Serializable]
-	public ref class Configuration : IPluginConfiguration
+	public ref class Configuration : Dalamud::Configuration::IPluginConfiguration
 	{
-		[NonSerialized] DalamudPluginInterface^ _pluginInterface;
 		[NonSerialized] int _version = 1;
 	public:
 		bool Render;
@@ -35,6 +32,5 @@ namespace NativeHousemate
 		}
 
 		void Save();
-		void Initialize(DalamudPluginInterface^ pluginInterface);
 	};
 }

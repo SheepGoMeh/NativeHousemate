@@ -5,7 +5,6 @@
 
 using namespace System::IO;
 using namespace System::Collections::Generic;
-using namespace Dalamud::Plugin;
 using namespace Newtonsoft::Json;
 using namespace Lumina::Excel::GeneratedSheets;
 using namespace System::Runtime::InteropServices;
@@ -22,7 +21,7 @@ namespace NativeHousemate
 		initonly Dictionary<uint32_t, uint32_t>^ _unitedDict;
 		initonly Dictionary<uint32_t, HousingYardObject^>^ _yardObjectDict;
 
-		HousingData(DalamudPluginInterface^ pi);
+		HousingData(Dalamud::Data::DataManager^ dataManager);
 
 		static HousingData^ _instance;
 
@@ -42,7 +41,7 @@ namespace NativeHousemate
 			}
 		}
 
-		static void Init(DalamudPluginInterface^ pi);
+		static void Init(Dalamud::Data::DataManager^ data);
 		bool TryGetYardObject(uint32_t id, [Out] HousingYardObject^% yardObject);
 		bool TryGetFurniture(uint32_t id, [Out] HousingFurniture^% furniture);
 		bool TryGetLandSetDict(uint32_t id, [Out] Dictionary<uint32_t, CommonLandSet^>^% dict);

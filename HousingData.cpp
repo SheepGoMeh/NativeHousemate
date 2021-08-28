@@ -1,9 +1,9 @@
 ﻿#include "pch.h"
 #include "HousingData.h"
 
-NativeHousemate::HousingData::HousingData(DalamudPluginInterface^ pi)
+NativeHousemate::HousingData::HousingData(Dalamud::Data::DataManager^ dataManager)
 {
-	auto sheet = pi->Data->GetExcelSheet<HousingLandSet^>();
+	auto sheet = dataManager->GetExcelSheet<HousingLandSet^>();
 	auto terriKeys = gcnew array<uint32_t>{339, 340, 341, 641};
 
 	_territoryToLandSetDict = gcnew Dictionary<uint32_t, Dictionary<uint32_t, CommonLandSet^>^>();
@@ -27,7 +27,7 @@ NativeHousemate::HousingData::HousingData(DalamudPluginInterface^ pi)
 		_territoryToLandSetDict[terriKeys[i]] = rowDict;
 	}
 
-	auto unitedExteriorSheet = pi->Data->GetExcelSheet<HousingUnitedExterior^>();
+	auto unitedExteriorSheet = dataManager->GetExcelSheet<HousingUnitedExterior^>();
 	_unitedDict = gcnew Dictionary<uint32_t, uint32_t>();
 
 	for each (auto row in unitedExteriorSheet)
@@ -38,7 +38,7 @@ NativeHousemate::HousingData::HousingData(DalamudPluginInterface^ pi)
 		}
 	}
 
-	auto itemSheet = pi->Data->GetExcelSheet<Item^>();
+	auto itemSheet = dataManager->GetExcelSheet<Item^>();
 	_itemDict = gcnew Dictionary<uint32_t, Item^>();
 
 	for each (auto item in itemSheet)
@@ -49,7 +49,7 @@ NativeHousemate::HousingData::HousingData(DalamudPluginInterface^ pi)
 		}
 	}
 
-	auto stainSheet = pi->Data->GetExcelSheet<Stain^>();
+	auto stainSheet = dataManager->GetExcelSheet<Stain^>();
 	_stainDict = gcnew Dictionary<uint32_t, Stain^>();
 
 	for each (auto row in stainSheet)
@@ -57,7 +57,7 @@ NativeHousemate::HousingData::HousingData(DalamudPluginInterface^ pi)
 		_stainDict[row->RowId] = row;
 	}
 
-	auto furnitureSheet = pi->Data->GetExcelSheet<HousingFurniture^>();
+	auto furnitureSheet = dataManager->GetExcelSheet<HousingFurniture^>();
 	_furnitureDict = gcnew Dictionary<uint32_t, HousingFurniture^>();
 
 	for each (auto row in furnitureSheet)
@@ -65,7 +65,7 @@ NativeHousemate::HousingData::HousingData(DalamudPluginInterface^ pi)
 		_furnitureDict[row->RowId] = row;
 	}
 
-	auto yardObjectSheet = pi->Data->GetExcelSheet<HousingYardObject^>();
+	auto yardObjectSheet = dataManager->GetExcelSheet<HousingYardObject^>();
 	_yardObjectDict = gcnew Dictionary<uint32_t, HousingYardObject^>();
 
 	for each (auto row in yardObjectSheet)
@@ -73,17 +73,17 @@ NativeHousemate::HousingData::HousingData(DalamudPluginInterface^ pi)
 		_yardObjectDict[row->RowId] = row;
 	}
 
-	PluginLog::Log(String::Format("Loaded {0} landset rows", _territoryToLandSetDict->Keys->Count));
-	PluginLog::Log(String::Format("Loaded {0} furniture", _furnitureDict->Keys->Count));
-	PluginLog::Log(String::Format("Loaded {0} landset yard objects", _yardObjectDict->Keys->Count));
-	PluginLog::Log(String::Format("Loaded {0} landset united parts", _unitedDict->Keys->Count));
-	PluginLog::Log(String::Format("Loaded {0} landset stain infos", _stainDict->Keys->Count));
-	PluginLog::Log(String::Format("Loaded {0} landset items with AdditionalData", _itemDict->Keys->Count));
+	Dalamud::Logging::PluginLog::Log(String::Format("Loaded {0} landset rows", _territoryToLandSetDict->Keys->Count));
+	Dalamud::Logging::PluginLog::Log(String::Format("Loaded {0} furniture", _furnitureDict->Keys->Count));
+	Dalamud::Logging::PluginLog::Log(String::Format("Loaded {0} landset yard objects", _yardObjectDict->Keys->Count));
+	Dalamud::Logging::PluginLog::Log(String::Format("Loaded {0} landset united parts", _unitedDict->Keys->Count));
+	Dalamud::Logging::PluginLog::Log(String::Format("Loaded {0} landset stain infos", _stainDict->Keys->Count));
+	Dalamud::Logging::PluginLog::Log(String::Format("Loaded {0} landset items with AdditionalData", _itemDict->Keys->Count));
 }
 
-void NativeHousemate::HousingData::Init(DalamudPluginInterface^ pi)
+void NativeHousemate::HousingData::Init(Dalamud::Data::DataManager^ data)
 {
-	Instance = gcnew HousingData(pi);
+	Instance = gcnew HousingData(data);
 }
 
 bool NativeHousemate::HousingData::TryGetYardObject(uint32_t id, HousingYardObject^% yardObject)

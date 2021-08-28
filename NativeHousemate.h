@@ -2,21 +2,31 @@
 #include "HousemateUI.h"
 
 using namespace System;
-using namespace Dalamud::Game::Command;
-using namespace Dalamud::Plugin;
 
 namespace NativeHousemate
 {
-	public ref class NativeHousemate : IDalamudPlugin
+	public ref class NativeHousemate : Dalamud::Plugin::IDalamudPlugin
 	{
-		literal String^ CommandName = "/housemate";
-		DalamudPluginInterface^ _pi;
 		HousemateUI^ _ui;
-		Configuration^ _configuration;
+		literal String^ CommandName = "/housemate";
 
 	public:
-		virtual void Initialize(DalamudPluginInterface^ pluginInterface);
+		static Dalamud::Game::Framework^ Framework;
+		static Dalamud::Game::Gui::GameGui^ GameGui;
+		static Dalamud::Game::ClientState::ClientState^ ClientState;
+		static Dalamud::Game::Command::CommandManager^ CommandManager;
+		static Dalamud::Plugin::DalamudPluginInterface^ PluginInterface;
+		static Dalamud::Game::ClientState::Objects::ObjectTable^ ObjectTable;
+		
 		property String^ Name { virtual String^ get() { return "Housemate"; } }
+		NativeHousemate(Dalamud::Plugin::DalamudPluginInterface^ pluginInterface,
+						Dalamud::Game::Gui::GameGui^ gameGui,
+						Dalamud::Game::ClientState::ClientState^ clientState,
+						Dalamud::Game::Command::CommandManager^ commandManager,
+						Dalamud::Game::Framework^ framework,
+						Dalamud::Game::ClientState::Objects::ObjectTable^ objectTable,
+						Dalamud::Game::SigScanner^ sigScanner,
+						Dalamud::Data::DataManager^ dataManager);
 		~NativeHousemate();
 
 	private:
